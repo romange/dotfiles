@@ -1,7 +1,18 @@
+[user]
+	# Note: Actual user.name and user.email should be in ~/.gitconfig.local
+	# See the [include] section at the bottom of this file
+
 [alias]
 
 	# View abbreviated SHA, description, and history graph of the latest 20 commits.
 	l = log --pretty=oneline -n 20 --graph --abbrev-commit
+	
+	# Additional log aliases with rich formatting
+	gr = log --graph --full-history --all --color --pretty=tformat:"%x1b[31m%h%x09%x1b[32m%d%x1b[0m%x20%s%x20%x1b[33m(%an)%x1b[0m"
+	lg = log --graph --pretty=format:'%Cred%h%Creset %ad %s %C(yellow)%d%Creset %C(bold blue)<%an>%Creset' --date=short
+	hist = log --graph --full-history --all --pretty=format:'%Cred%h%Creset %ad %s %C(yellow)%d%Creset %C(bold blue)<%an>%Creset' --date=short
+	lol = log --graph --decorate --pretty=oneline --abbrev-commit
+	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
 
 	# View the current working tree status using the short format.
 	s = status -s
@@ -75,6 +86,8 @@
 
 	# Show most recently changed branches first.
 	sort = -committerdate
+	# Always set up rebase for new branches
+	autosetuprebase = always
 
 [core]
 
@@ -87,23 +100,20 @@
 	# [default] space-before-tab: looks for spaces before tabs at the beginning of a line
 	whitespace = space-before-tab,-indent-with-non-tab,trailing-space
 
-	# Make `git rebase` safer on macOS.
-	# More info: <http://www.git-tower.com/blog/make-git-rebase-safe-on-osx/>
-	trustctime = false
-
-	# Prevent showing files whose names contain non-ASCII symbols as unversioned.
-	# http://michael-kuehnel.de/git/2014/11/21/git-mac-osx-and-german-umlaute.html
-	precomposeunicode = false
-
 	# Speed up commands involving untracked files such as `git status`.
 	# https://git-scm.com/docs/git-update-index#_untracked_cache
 	untrackedCache = true
+	
+	# Default editor (can be overridden in ~/.gitconfig.local)
+	editor = nano
 
 [color]
 
 	# Use colors in Git commands that are capable of colored output when
 	# outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
 	ui = auto
+	status = auto
+	branch = auto
 
 [color "branch"]
 
@@ -139,6 +149,10 @@
 	# Use `hexdump` to diff binary files.
 	textconv = hexdump -v -C
 
+[difftool]
+
+	prompt = false
+
 [help]
 
 	# Automatically correct and execute mistyped commands.
@@ -148,6 +162,12 @@
 
 	# Include summaries of merged commits in newly created merge commit messages
 	log = true
+	tool = meld
+
+[mergetool]
+
+	prompt = false
+
 
 [push]
 
@@ -155,6 +175,14 @@
 	default = simple
 	# Make `git push` push relevant annotated tags when pushing branches out.
 	followTags = true
+
+[pull]
+
+	rebase = true
+
+[credential]
+
+	helper = store
 
 # URL shorthands
 
@@ -181,3 +209,10 @@
 [init]
 
 	defaultBranch = main
+
+# Include local settings (user.name, user.email, etc.)
+# This file should NOT be committed to version control
+# Create ~/.gitconfig.local with your personal information
+[include]
+
+	path = ~/.gitconfig.local
