@@ -13,29 +13,8 @@ local scheme = wezterm.get_builtin_color_schemes()["Material"]
 local gpus = wezterm.gui.enumerate_gpus()
 local utils = require("utils")
 
----------------------------------------------------------------
---- Merge the Config
----------------------------------------------------------------
-local function create_ssh_domain_from_ssh_config(ssh_domains)
-	if ssh_domains == nil then
-		ssh_domains = {}
-	end
-	for host, config in pairs(wezterm.enumerate_ssh_hosts()) do
-		table.insert(ssh_domains, {
-			name = host,
-			remote_address = config.hostname .. ":" .. config.port,
-			username = config.user,
-			multiplexing = "None",
-			assume_shell = "Posix",
-		})
-	end
-	return { ssh_domains = ssh_domains }
-end
-
-
-
 -- 1. Linux Performance & Integration
-config.front_end = "WebGpu" -- Faster rendering on modern Linux drivers
+config.front_end = "OpenGL" -- Use OpenGL for better AMD GPU compatibility
 config.enable_wayland = true
 config.warn_about_missing_glyphs = false
 config.webgpu_preferred_adapter = gpus[1]
@@ -163,8 +142,10 @@ config.hyperlink_rules = {
 }
 
 table.insert(config.hyperlink_rules, {
-	regex = [[["]?([\w\d]{1}[-\w\d]+)(/){1}([-\w\d\.]+)["]?]],
-	format = "https://github.com/$1/$3",
+	-- Match owner/repo, but only if not preceded by a / (to avoid absolute paths)
+	-- and ensure it's at a word boundary or preceded by whitespace.
+	regex = [[(?:^|\s)([\w\d]{1}[-\w\d]+)/([-\w\d\.]+)]],
+	format = "https://github.com/$1/$2",
 })
 
 ---@diagnostic disable-next-line: unused-local
