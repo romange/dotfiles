@@ -210,6 +210,8 @@
 [init]
 
 	defaultBranch = main
+[pager]
+   branch = false
 
 # Include local settings (user.name, user.email, etc.)
 # This file should NOT be committed to version control

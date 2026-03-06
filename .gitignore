@@ -15,3 +15,4 @@ Thumbs.db
 
 # Local git configuration with PII (email, name, etc.)
 .gitconfig.local
+.vscode/settings.json
