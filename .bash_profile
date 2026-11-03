@@ -1,12 +1,22 @@
 # Add `~/bin` to the `$PATH`
-export PATH="$HOME/bin:$PATH";
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH";
+
+# Versioned Go packages may not provide a /usr/bin/go symlink.
+for directory in /usr/lib/go-*/bin; do
+	if [ -x "$directory/go" ] && [[ ":$PATH:" != *":$directory:"* ]]; then
+		export PATH="$PATH:$directory";
+	fi;
+done;
+unset directory;
 
 ulimit -n 16384;
 
-# Load the shell dotfiles, and then some:
+# Load optional tool setup before shell dotfiles and private overrides:
 # * ~/.path can be used to extend `$PATH`.
 # * ~/.extra can be used for other settings you don’t want to commit.
-for file in ~/.{path,bash_prompt,exports,aliases,functions,extra}; do
+for file in /opt/google/google-cloud-sdk/path.bash.inc \
+	"$HOME/.cargo/env" "${XDG_CONFIG_HOME:-$HOME/.config}/envman/load.sh" \
+	~/.{path,bash_prompt,exports,aliases,functions,extra}; do
 	[ -r "$file" ] && [ -f "$file" ] && source "$file";
 done;
 unset file;
@@ -16,6 +26,15 @@ shopt -s nocaseglob;
 
 # Append to the Bash history file, rather than overwriting it
 shopt -s histappend;
+shopt -s cmdhist checkwinsize;
+
+if [[ ";${PROMPT_COMMAND-};" != *";history -a;"* ]]; then
+	PROMPT_COMMAND="history -a${PROMPT_COMMAND:+; $PROMPT_COMMAND}";
+fi;
+
+if [[ -t 0 ]]; then
+	stty -ixon;
+fi;
 
 # Autocorrect typos in path names when using `cd`
 shopt -s cdspell;
@@ -34,6 +53,10 @@ if which brew &> /dev/null && [ -r "$(brew --prefix)/etc/profile.d/bash_completi
 	source "$(brew --prefix)/etc/profile.d/bash_completion.sh";
 elif [ -f /etc/bash_completion ]; then
 	source /etc/bash_completion;
+fi;
+
+if [ -f /opt/google/google-cloud-sdk/completion.bash.inc ]; then
+	source /opt/google/google-cloud-sdk/completion.bash.inc;
 fi;
 
 # Enable tab completion for `g` by marking it as an alias for `git`
