@@ -1,0 +1,2 @@
+leak:MallocExtension
+leak:event_base_once

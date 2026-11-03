@@ -15,9 +15,23 @@ export HISTCONTROL='ignoreboth';
 # Prefer US English and use UTF-8.
 export LANG='en_US.UTF-8';
 export LC_ALL='en_US.UTF-8';
-export LESS="-RX";
+export LESS="-iMFXR";
 # Highlight section titles in manual pages.
 export LESS_TERMCAP_md="${yellow}";
 
 # Don’t clear the screen after quitting a manual page.
 export MANPAGER='less -X';
+
+export HISTIGNORE='&:ls:[bf]g:exit';
+export IGNOREEOF='2';
+export PYTHONSTARTUP="$HOME/.pythonrc";
+
+export ASAN_OPTIONS='symbolize=1';
+export UBSAN_OPTIONS='print_stacktrace=1:halt_on_error=1';
+if command -v llvm-symbolizer > /dev/null 2>&1; then
+	export ASAN_SYMBOLIZER_PATH="$(command -v llvm-symbolizer)";
+fi;
+export LSAN_OPTIONS="suppressions=$HOME/.config/dotfiles/lsan.supp";
+if [[ $(uname -m) == x86_64 ]]; then
+	export TCMALLOC_STACKTRACE_METHOD='libunwind';
+fi;
