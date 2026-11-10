@@ -37,9 +37,10 @@ fi
 
 packages=(
 	automake bash-completion bison build-essential ca-certificates
-	cmake curl flex git graphviz guake htop less libbz2-dev libcurl4-gnutls-dev
-	libevent-dev libssl-dev libtool libxml2-dev llvm meld nano ninja-build
-	openssh-client pkg-config rsync sysstat tmux tree vim vim-gui-common
+	clang-format cmake curl flex git graphviz guake htop less libboost-context-dev libbz2-dev
+	libcurl4-gnutls-dev
+	libevent-dev libssl-dev libtool libunwind-dev libxml2-dev llvm meld mold nano ninja-build
+	openssh-client pkg-config pre-commit ripgrep rsync sysstat tmux tree vim vim-gui-common
 	wget xz-utils "$perf_package"
 )
 
@@ -82,3 +83,46 @@ if [[ "$(dpkg --print-architecture)" == amd64 ]]; then
 else
 	echo "Skipping Slack: no Debian package for this architecture." >&2
 fi
+
+# Claude Desktop (beta) from Anthropic's apt repository; amd64 and arm64 only.
+case "$(dpkg --print-architecture)" in
+	amd64 | arm64)
+		"${sudo_cmd[@]}" apt-get install --yes gnupg
+		claude_key=/usr/share/keyrings/claude-desktop-archive-keyring.asc
+		"${sudo_cmd[@]}" curl --fail --location --silent --show-error \
+			--output "$claude_key" https://downloads.claude.ai/claude-desktop/key.asc
+		claude_fpr="31DDDE24DDFAB679F42D7BD2BAA929FF1A7ECACE"
+		if [[ "$(gpg --show-keys --with-colons "$claude_key" | awk -F: '$1 == "fpr" {print $10}')" != "$claude_fpr" ]]; then
+			echo "Unexpected Claude Desktop signing key fingerprint." >&2
+			exit 1
+		fi
+		echo "deb [arch=amd64,arm64 signed-by=$claude_key] https://downloads.claude.ai/claude-desktop/apt/stable stable main" \
+			| "${sudo_cmd[@]}" tee /etc/apt/sources.list.d/claude-desktop.list >/dev/null
+		"${sudo_cmd[@]}" apt-get update
+		"${sudo_cmd[@]}" apt-get install --yes claude-desktop
+		;;
+	*) echo "Skipping Claude Desktop: requires amd64 or arm64." >&2 ;;
+esac
+
+# Docker Engine, Buildx and the Compose plugin from Docker's apt repository.
+case " $ID " in
+	*" ubuntu "*) docker_distro=ubuntu ;;
+	*) docker_distro=debian ;;
+esac
+docker_codename="${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}"
+if [[ "$docker_distro" == debian ]]; then
+	docker_codename="${VERSION_CODENAME:-}"
+fi
+if [[ -z "$docker_codename" ]]; then
+	echo "Cannot determine the distribution codename for Docker." >&2
+	exit 1
+fi
+docker_key=/etc/apt/keyrings/docker.asc
+"${sudo_cmd[@]}" curl --fail --location --silent --show-error \
+	--output "$docker_key" "https://download.docker.com/linux/$docker_distro/gpg"
+"${sudo_cmd[@]}" chmod a+r "$docker_key"
+echo "deb [arch=$(dpkg --print-architecture) signed-by=$docker_key] https://download.docker.com/linux/$docker_distro $docker_codename stable" \
+	| "${sudo_cmd[@]}" tee /etc/apt/sources.list.d/docker.list >/dev/null
+"${sudo_cmd[@]}" apt-get update
+"${sudo_cmd[@]}" apt-get install --yes docker-ce docker-ce-cli containerd.io \
+	docker-buildx-plugin docker-compose-plugin
