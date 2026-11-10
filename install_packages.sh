@@ -57,3 +57,28 @@ chmod 644 "$vscode_dir/code.deb"
 printf '%s\n' 'code code/add-microsoft-repo boolean true' \
 	| "${sudo_cmd[@]}" debconf-set-selections
 "${sudo_cmd[@]}" apt-get install --yes "$vscode_dir/code.deb"
+
+# GitHub CLI from the official apt repository.
+"${sudo_cmd[@]}" mkdir -p -m 755 /etc/apt/keyrings
+curl --fail --location --silent --show-error \
+	https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+	| "${sudo_cmd[@]}" tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
+"${sudo_cmd[@]}" chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+	| "${sudo_cmd[@]}" tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+"${sudo_cmd[@]}" apt-get update
+"${sudo_cmd[@]}" apt-get install --yes gh
+
+# Copilot CLI
+curl -fsSL https://gh.io/copilot-install | bash
+
+# Slack publishes its latest Debian package for amd64 only.
+if [[ "$(dpkg --print-architecture)" == amd64 ]]; then
+	curl --fail --location --silent --show-error \
+		--output "$vscode_dir/slack.deb" \
+		"https://slack.com/api/desktop.latestRelease?arch=x64&variant=deb&redirect=true"
+	chmod 644 "$vscode_dir/slack.deb"
+	"${sudo_cmd[@]}" apt-get install --yes "$vscode_dir/slack.deb"
+else
+	echo "Skipping Slack: no Debian package for this architecture." >&2
+fi
