@@ -1,0 +1,9 @@
+StrictHostKeyChecking no
+ServerAliveInterval 200
+
+ForwardX11 yes
+ForwardX11Trusted yes
+
+ControlMaster auto
+ControlPath ~/.ssh/control-%C
+ControlPersist 600

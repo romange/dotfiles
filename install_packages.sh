@@ -37,9 +37,10 @@ fi
 
 packages=(
 	automake bash-completion bison build-essential ca-certificates
-	cmake curl flex git graphviz guake htop less libbz2-dev libcurl4-gnutls-dev
-	libevent-dev libssl-dev libtool libxml2-dev llvm meld nano ninja-build
-	openssh-client pkg-config rsync sysstat tmux tree vim vim-gui-common
+	clang-format cmake curl flex git graphviz guake htop less libboost-context-dev libbz2-dev
+	libcurl4-gnutls-dev
+	libevent-dev libssl-dev libtool libunwind-dev libxml2-dev llvm meld mold nano ninja-build
+	openssh-client pkg-config pre-commit python3-pip python3-pytest ripgrep rsync sysstat tmux tree vim vim-gui-common
 	wget xz-utils "$perf_package"
 )
 

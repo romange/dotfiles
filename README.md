@@ -21,8 +21,8 @@ bash setup.sh
 | `bash bootstrap.sh` | Copy dotfiles only |
 
 Add `--force` to `setup.sh` or `bootstrap.sh` to skip overwrite confirmation.
-Existing managed dotfiles are overwritten; back them up first. Existing GTK CSS
-and private overrides are preserved. Open a new terminal afterward, or run
+Existing managed dotfiles are overwritten; back them up first. Existing GTK CSS,
+SSH config and private overrides are preserved. Open a new terminal afterward, or run
 `source ~/.bash_profile`.
 
 To update later, run `git pull --ff-only`, then one of the commands above.
@@ -61,7 +61,8 @@ Git signing is enabled by default: configure your key locally, or set
 `commit.gpgsign false` in that file. HTTPS credentials are saved indefinitely in
 plaintext by Git's `store` helper (normally `~/.git-credentials`); protect that
 file and never commit it.
-Keep SSH keys/config in `~/.ssh`; setup never touches them.
+Keep SSH keys and private configuration in `~/.ssh`; setup installs the shared
+SSH config only if `~/.ssh/config` does not already exist. It never touches SSH keys.
 
 Use `~/.path` for PATH additions, `~/.bash_aliases_private` for private aliases,
 `~/.extra` for final shell overrides, and `~/.pythonrc` for Python startup code.

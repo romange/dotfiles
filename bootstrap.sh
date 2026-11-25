@@ -23,6 +23,11 @@ function doIt() (
 	if [[ ! -e "$config_dir/gtk-3.0/gtk.css" && ! -L "$config_dir/gtk-3.0/gtk.css" ]]; then
 		rsync -avh --no-perms -- config/gtk.css "$config_dir/gtk-3.0/"
 	fi
+
+	if [[ ! -e "$HOME/.ssh/config" && ! -L "$HOME/.ssh/config" ]]; then
+		mkdir -p -m 700 "$HOME/.ssh"
+		rsync -avh --no-perms --chmod=F600 -- config/ssh_config "$HOME/.ssh/config"
+	fi
 )
 
 if [[ $# -gt 1 || ( $# -eq 1 && "$1" != --force && "$1" != -f ) ]]; then
